@@ -61,7 +61,7 @@ library
                          Policeman.Cabal
                          Policeman.Cli
                          Policeman.ColorTerminal
-                       Policeman.Core.Diff
+                         Policeman.Core.Diff
                          Policeman.Core.Package
                          Policeman.Diff
                          Policeman.Run

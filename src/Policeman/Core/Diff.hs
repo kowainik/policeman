@@ -3,14 +3,18 @@
 
 module Policeman.Core.Diff
     ( PackageDiff (..)
+    , Diff (..)
     ) where
 
 import Policeman.Core.Package (Export, Module)
 
 
 data PackageDiff = PackageDiff
-    { pdModuleAdded   :: !(Set Module)
-    , pdModuleDeleted :: !(Set Module)
-    , pdExportAdded   :: !(Set Export)
-    , pdExportDeleted :: !(Set Export)
+    { pdModule :: !(Diff Module)
+    , pdExport :: !(Diff Export)
+    }
+
+data Diff a = Diff
+    { diffAdded   :: !(Set a)
+    , diffDeleted :: !(Set a)
     }
