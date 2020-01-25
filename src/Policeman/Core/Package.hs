@@ -56,11 +56,11 @@ A.B.C.D
 @
 -}
 versionToText :: Version -> Text
-versionToText Version{..} = Text.intercalate "."
-    [ show versionA
-    , show versionB
-    , show versionC
-    , show versionD
+versionToText Version{..} = Text.intercalate "." $ map show
+    [ versionA
+    , versionB
+    , versionC
+    , versionD
     ]
 
 bumpMarketingMajorVersion :: Version -> Version
