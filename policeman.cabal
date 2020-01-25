@@ -84,6 +84,7 @@ library
                      , optparse-applicative ^>= 0.15
                      , shellmet ^>= 0.0.3.0
                      , text ^>= 1.2.4
+                     , transformers ^>= 0.5.6
 
 executable policeman
   import:              common-options

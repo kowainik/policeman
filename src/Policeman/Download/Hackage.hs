@@ -6,9 +6,10 @@ module Policeman.Download.Hackage
     , downloadFromHackage
     ) where
 
-import Control.Exception (catch, throwIO)
+import Control.Exception (catch)
+import Control.Monad.Trans.Except (withExceptT)
 import Shellmet (($?))
-import System.Directory (createDirectoryIfMissing, removeDirectoryRecursive)
+import System.Directory (createDirectoryIfMissing, getCurrentDirectory, removeDirectoryRecursive)
 import System.FilePath ((</>))
 import System.IO.Error (IOError, isDoesNotExistError)
 
@@ -21,7 +22,7 @@ import Policeman.Download.Common (DownloadError (..), evidenceDir)
 'Version', downloads @.tar.gz@ archive from Hackage and unpacks it in
 the current directory.
 -}
-downloadFromHackage :: PackageName -> Version -> IO (Either DownloadError ())
+downloadFromHackage :: PackageName -> Version -> ExceptT DownloadError IO FilePath
 downloadFromHackage packageName@(PackageName name) (versionToText -> version) = do
     let fullName = name <> "-" <> version
     let tarName = fullName <> ".tar.gz"
@@ -34,21 +35,23 @@ downloadFromHackage packageName@(PackageName name) (versionToText -> version) = 
 
     let tarPath = toText $ evidenceDir </> toString tarName
     let srcPath = evidenceDir </> toString fullName
-    createDirectoryIfMissing True evidenceDir
-    removeDirIfExists srcPath
+    liftIO $ createDirectoryIfMissing True evidenceDir
+    withExceptT SystemError $ removeDirIfExists srcPath
 
-    downloadRes <- (Right <$> "curl" [tarUrl, "--output", tarPath])
+    -- download archive from Hackage
+    ExceptT $
+        (Right <$> "curl" ["--silent", tarUrl, "--output", tarPath])
         $? pure (Left $ NoSuchPackage packageName)
 
-    case downloadRes of
-        Left err -> pure (Left err)
-        Right () -> Right <$> "tar" ["-xf", tarPath, "-C", toText evidenceDir]
+    -- unpack
+    liftIO $ "tar" ["-xf", tarPath, "-C", toText evidenceDir]
+    liftIO $ fmap (</> srcPath) getCurrentDirectory
 
-removeDirIfExists :: FilePath -> IO ()
-removeDirIfExists fileName =
-    removeDirectoryRecursive fileName `catch` handleExists
+removeDirIfExists :: FilePath -> ExceptT IOError IO ()
+removeDirIfExists fileName = ExceptT $
+    (Right <$> removeDirectoryRecursive fileName) `catch` (pure . handleExists)
   where
-    handleExists :: IOError -> IO ()
+    handleExists :: IOError -> Either IOError ()
     handleExists e
-        | isDoesNotExistError e = pass
-        | otherwise = throwIO e
+        | isDoesNotExistError e = Right ()
+        | otherwise = Left e

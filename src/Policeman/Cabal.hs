@@ -4,13 +4,22 @@
 module Policeman.Cabal
     ( CabalError (..)
     , findCabalDescription
+    , extractPackageName
+    , extractPackageVersion
     ) where
 
 import Control.Monad.Except (throwError)
-import Distribution.PackageDescription (GenericPackageDescription)
+import Distribution.PackageDescription (GenericPackageDescription (..), PackageDescription (..))
 import Distribution.PackageDescription.Parsec (parseGenericPackageDescriptionMaybe)
+import Distribution.Types.PackageId (PackageIdentifier (..))
+import Distribution.Types.Version (versionNumbers)
 import System.Directory (doesDirectoryExist, listDirectory)
 import System.FilePath (takeExtension, (</>))
+
+import Policeman.Core.Package (PackageName (..))
+import Policeman.Core.Version (Version, versionFromIntList)
+
+import qualified Distribution.Types.PackageName as Cabal
 
 
 {- | Errors about dealing with @.cabal@ files.
@@ -42,3 +51,20 @@ findCabalDescription dirPath = do
             whenNothing (parseGenericPackageDescriptionMaybe cabalContent) $
                 throwError $ CabalParseError cabalPath  -- TODO: better error
         x:xs -> throwError $ MultipleCabalFiles (x :| xs)
+
+extractPackageName :: GenericPackageDescription -> PackageName
+extractPackageName =
+    PackageName
+    . toText
+    . Cabal.unPackageName
+    . pkgName
+    . package
+    . packageDescription
+
+extractPackageVersion :: GenericPackageDescription -> Maybe Version
+extractPackageVersion =
+    versionFromIntList
+    . versionNumbers
+    . pkgVersion
+    . package
+    . packageDescription
