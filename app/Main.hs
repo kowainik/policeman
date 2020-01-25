@@ -1,7 +1,9 @@
 module Main (main) where
 
-import Policeman (someFunc)
+import System.IO (hSetEncoding, utf8)
+
+import Policeman (policeman)
 
 
 main :: IO ()
-main = someFunc
+main = hSetEncoding stdout utf8 >> policeman

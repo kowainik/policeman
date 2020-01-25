@@ -1,6 +1,13 @@
 module Policeman
-       ( someFunc
+       ( policeman
        ) where
 
-someFunc :: IO ()
-someFunc = putStrLn ("someFunc" :: String)
+import Options.Applicative (execParser)
+
+import Policeman.Cli (policemanParser)
+import Policeman.Run (runPoliceman)
+
+
+-- | Main tool exec function.
+policeman :: IO ()
+policeman = execParser policemanParser >>= runPoliceman
