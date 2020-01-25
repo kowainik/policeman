@@ -1,4 +1,10 @@
 module Main (main) where
 
+import Test.Hspec (describe, hspec)
+
+import Test.Policeman.Cabal (cabalSpec)
+
+
 main :: IO ()
-main = putStrLn ("Test suite is not implemented" :: String)
+main = hspec $ describe "Policeman" $
+    cabalSpec
