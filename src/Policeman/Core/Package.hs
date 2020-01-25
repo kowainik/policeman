@@ -29,7 +29,7 @@ Generally speaking, this is the resulting data type of custom parsing the
 project by @policeman@.
 -}
 data PackageStructure = PackageStructure
-    { psModules    :: !(Set Module)  -- ^ List of the external modules
+    { psModules    :: !(Set Module)  -- ^ List of the exposed modules
     , psExports    :: !(Set Export)  -- ^ The summary list of the exported stuff.
     , psModulesMap :: !(HashMap Module ModuleStructure)  -- ^ The pairs of the module and its parsed structure.
     }
