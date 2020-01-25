@@ -64,6 +64,7 @@ library
                          Policeman.Core.Diff
                          Policeman.Core.Package
                          Policeman.Diff
+                         Policeman.Evaluate
                          Policeman.Run
 
                          -- downloading
