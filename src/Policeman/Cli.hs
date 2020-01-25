@@ -33,7 +33,7 @@ versionP = infoOption policemanVersion
    <> help "Show policeman's version"
 
 policemanVersion :: String
-policemanVersion = toString $ intercalate "\n" $
+policemanVersion = toString $ intercalate "\n"
     [ sVersion
     , sHash
     , sDate
