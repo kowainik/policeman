@@ -24,7 +24,7 @@ data CabalError
     | MultipleCabalFiles (NonEmpty FilePath)
     -- | Error parsing cabal file.
     | CabalParseError FilePath
-    deriving stock (Show)
+    deriving stock (Show, Eq)
 
 {- | This function takes a path to a directory, finds a cabal file
 under this directory, parses it and returns parsed content.

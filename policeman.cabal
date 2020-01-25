@@ -94,7 +94,13 @@ test-suite policeman-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-  build-depends:       policeman
+  other-modules:       Test.Policeman.Cabal
+
+  build-depends:       Cabal ^>= 3.0.0.0
+                     , directory ^>= 1.3
+                     , filepath ^>= 1.4
+                     , hspec ^>= 2.7.1
+                     , policeman
 
   ghc-options:         -threaded
                        -rtsopts
