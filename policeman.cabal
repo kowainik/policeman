@@ -59,12 +59,21 @@ library
   exposed-modules:     Policeman
                          Policeman.Cli
                          Policeman.ColorTerminal
+                         Policeman.Core.Package
                          Policeman.Run
+
+                         -- downloading
+                         Policeman.Download.Common
+                         Policeman.Download.Hackage
   autogen-modules:     Paths_policeman
   other-modules:       Paths_policeman
+
   build-depends:       ansi-terminal >= 0.8
+                     , directory ^>= 1.3
+                     , filepath ^>= 1.4
                      , gitrev ^>= 1.3
                      , optparse-applicative ^>= 0.15
+                     , shellmet ^>= 0.0.3.0
                      , text ^>= 1.2.4
 
 executable policeman

@@ -52,3 +52,6 @@ TAGS
 
 # other
 .DS_Store
+
+# policeman
+.policeman-evidence
