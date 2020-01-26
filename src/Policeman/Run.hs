@@ -32,13 +32,15 @@ diffWith :: Version -> ExceptT PolicemanError IO ()
 diffWith prevVersion = do
     curPackagePath <- liftIO getCurrentDirectory
     (curName, curVersion) <- getPackageInfo curPackagePath
-    liftIO $ print (curName, curVersion)
 
     prevPackagePath <- withExceptT DError $ downloadFromHackage curName prevVersion
     (parsedPrevName, parsedPrevVersion) <- getPackageInfo prevPackagePath
-    liftIO $ createHieFiles prevPackagePath
-    liftIO $ createHieFiles "."
-    liftIO $ print (parsedPrevName, parsedPrevVersion)
+
+    prevHieFiles <- liftIO $ createHieFiles prevPackagePath
+    curHieFiles  <- liftIO $ createHieFiles "."
+
+    putStrLn $ "Currently:  " ++ show (curName, curVersion, length curHieFiles)
+    putStrLn $ "Previously: " ++ show (parsedPrevName, parsedPrevVersion, length prevHieFiles)
 
 getPackageInfo :: FilePath -> ExceptT PolicemanError IO (PackageName, Version)
 getPackageInfo path = withExceptT CError $ do
