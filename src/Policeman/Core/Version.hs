@@ -62,11 +62,7 @@ versionFromText (Text.strip -> txt) = maybeInts >>= \ints ->
     else versionFromIntList ints
   where
     maybeInts :: Maybe [Int]
-    maybeInts = toInts $ map (readMaybe @Int . toString) $ Text.split (== '.') txt
-
-    toInts :: [Maybe Int] -> Maybe [Int]
-    toInts []          = Just []
-    toInts (mi : rest) = mi >>= \i -> fmap (i :) $ toInts rest
+    maybeInts = sequence $ map (readMaybe @Int . toString) $ Text.split (== '.') txt
 
 versionToIntList :: Version -> [Int]
 versionToIntList Version{..} =
