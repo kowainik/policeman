@@ -77,9 +77,10 @@ library
   autogen-modules:     Paths_policeman
   other-modules:       Paths_policeman
 
-  build-depends:       ansi-terminal >= 0.8
+  build-depends:       ansi-terminal ^>= 0.10
                      , Cabal ^>= 3.0.0.0
                      , containers ^>= 0.6.2
+                     , dir-traverse ^>= 0.2.2.2
                      , directory ^>= 1.3
                      , filepath ^>= 1.4
                      , ghc ^>= 8.8
