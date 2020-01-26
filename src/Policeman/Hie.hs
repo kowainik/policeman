@@ -22,7 +22,12 @@ createHieFiles projectDir = do
     curDir <- getCurrentDirectory
     setCurrentDirectory projectDir
     "cabal" ["clean"]
-    "cabal" ["build", "--ghc-options=-fwrite-ide-info", "--ghc-options=-hiedir=.hie"]
+    "cabal"
+        [ "v2-build"
+        , "--ghc-options=-fwrite-ide-info"
+        , "--ghc-options=-hiedir=.hie"
+        , "--verbose=0"
+        ]
     readHieFiles <* setCurrentDirectory curDir
 
 {- | Returns content of all @.hie@ files recursively in the current

@@ -4,19 +4,22 @@
 module Policeman.Cabal
     ( CabalError (..)
     , findCabalDescription
+    , extractExposedModules
     , extractPackageName
     , extractPackageVersion
     ) where
 
 import Control.Monad.Except (throwError)
-import Distribution.PackageDescription (GenericPackageDescription (..), PackageDescription (..))
+import Distribution.ModuleName (ModuleName, components)
+import Distribution.PackageDescription (CondTree (..), GenericPackageDescription (..), Library (..),
+                                        PackageDescription (..))
 import Distribution.PackageDescription.Parsec (parseGenericPackageDescriptionMaybe)
 import Distribution.Types.PackageId (PackageIdentifier (..))
 import Distribution.Types.Version (versionNumbers)
 import System.Directory (doesDirectoryExist, listDirectory)
 import System.FilePath (takeExtension, (</>))
 
-import Policeman.Core.Package (PackageName (..))
+import Policeman.Core.Package (Module (..), PackageName (..))
 import Policeman.Core.Version (Version, versionFromIntList)
 
 import qualified Distribution.Types.PackageName as Cabal
@@ -68,3 +71,12 @@ extractPackageVersion =
     . pkgVersion
     . package
     . packageDescription
+
+extractExposedModules :: GenericPackageDescription -> [Module]
+extractExposedModules =
+    map toModule
+    . concatMap (exposedModules . condTreeData . snd)
+    . condSubLibraries
+  where
+    toModule :: ModuleName -> Module
+    toModule = Module . toText . intercalate "." . components
