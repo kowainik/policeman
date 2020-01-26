@@ -61,5 +61,5 @@ prettyPrintDiff PackageDiff{..} = do
               mapM_ (putTextLn . ("      " <> ) . show) diffDeleted
 
             when (hasDiffAdded diff) $ do
-              errorMessage "    Added exports:"
+              successMessage "    Added exports:"
               mapM_ (putTextLn . ("      " <> ) . show) diffAdded
