@@ -8,6 +8,7 @@ import System.Directory (getCurrentDirectory)
 import Policeman.Cabal (CabalError (..), extractExposedModules, extractPackageName,
                         findCabalDescription)
 import Policeman.Cli (CliArgs (..))
+import Policeman.Core.Hie (hieFilesToHashMap)
 import Policeman.Core.Package (Module, PackageName, PackageStructure (..))
 import Policeman.Core.Version (Version, versionFromText, versionToText)
 import Policeman.Diff (comparePackageStructures)
@@ -44,14 +45,12 @@ diffWith prevVersion = do
 
     let prevPackageStructure = PackageStructure
             { psModules    = Set.fromList prevModules
-            , psExports    = error "Not implemented!"
-            , psModulesMap = mempty  -- TODO: not implemented yet
+            , psModulesMap = hieFilesToHashMap prevHieFiles
             }
 
     let curPackageStructure = PackageStructure
             { psModules    = Set.fromList curModules
-            , psExports    = error "Not implemented!"
-            , psModulesMap = mempty  -- TODO: not implemented yet
+            , psModulesMap = hieFilesToHashMap curHieFiles
             }
 
     let diff = comparePackageStructures prevPackageStructure curPackageStructure

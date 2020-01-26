@@ -24,7 +24,7 @@ eval ver PackageDiff{..}
     moduleDiffNonEmpty = pdModule /= emptyDiff
 
     removedExport :: Bool
-    removedExport = hasDiffDeleted pdExport
+    removedExport = any hasDiffDeleted pdExport
 
     newExport :: Bool
-    newExport = hasDiffAdded pdExport
+    newExport = any hasDiffAdded pdExport

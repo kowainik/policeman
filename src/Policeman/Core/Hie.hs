@@ -3,16 +3,22 @@
 
 -}
 module Policeman.Core.Hie
-    ( availInfoToExport
+    ( hieFileToModuleStructure
+    , hieFilesToHashMap
     ) where
 
 import Avail (AvailInfo (..))
 import FastString (unpackFS)
 import FieldLabel (FieldLabel, FieldLbl (..))
+import HieTypes (HieFile (..))
+import Module (moduleName, moduleNameString)
 import Name (Name, nameOccName)
 import OccName (occNameString)
 
-import Policeman.Core.Package (Export (..))
+import Policeman.Core.Package (Export (..), Module (..), ModuleStructure (..))
+
+import qualified Data.HashMap.Strict as HM
+import qualified Data.Set as Set
 
 
 {- | Creates the list of 'Export's from the given 'AvailInfo'.
@@ -39,3 +45,16 @@ availInfoToExport (AvailTC (nameToText -> name) pieces fields) =
 
 nameToText :: Name -> Text
 nameToText = toText . occNameString . nameOccName
+
+
+hieFileToModuleStructure :: HieFile -> ModuleStructure
+hieFileToModuleStructure hf = ModuleStructure
+    { msExports = Set.fromList $ concatMap availInfoToExport $ hie_exports hf
+    }
+
+
+hieFileToModule :: HieFile -> Module
+hieFileToModule = Module . toText . moduleNameString . moduleName . hie_module
+
+hieFilesToHashMap :: [HieFile] -> HashMap Module ModuleStructure
+hieFilesToHashMap = HM.fromList . map (\hf -> (hieFileToModule hf, hieFileToModuleStructure hf))
