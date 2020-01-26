@@ -35,7 +35,7 @@ newtype Module = Module
 data Export
     = ExportedFunction Text
     | ExportedType Text
-    deriving stock (Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 newtype ModuleStructure = ModuleStructure
     { msExports :: Set Export  -- ^ The summary list of the exported stuff.
