@@ -8,7 +8,7 @@ module Policeman.Evaluate
     ) where
 
 import Policeman.Core.Diff (PackageDiff (..), emptyDiff, hasDiffAdded, hasDiffDeleted)
-import Policeman.Core.Package (Version, bumpMajorVersion, bumpMinorVersion)
+import Policeman.Core.Version (Version, bumpMajorVersion, bumpMinorVersion)
 
 
 {- | Generates the next version in agreement with PVP.
