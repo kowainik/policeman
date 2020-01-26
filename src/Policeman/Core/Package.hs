@@ -36,7 +36,6 @@ newtype Module = Module
 data Export
     = ExportedFunction Text
     | ExportedType Text
-    | Exported Module
     deriving stock (Eq, Ord)
 
 data ModuleStructure = ModuleStructure
