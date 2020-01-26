@@ -2,18 +2,21 @@ module Policeman.Run
     ( runPoliceman
     ) where
 
-import Control.Monad.Except (throwError)
 import Control.Monad.Trans.Except (withExceptT)
 import System.Directory (getCurrentDirectory)
 
-import Policeman.Cabal (CabalError (..), extractPackageName, extractPackageVersion,
+import Policeman.Cabal (CabalError (..), extractExposedModules, extractPackageName,
                         findCabalDescription)
 import Policeman.Cli (CliArgs (..))
-import Policeman.Core.Package (PackageName)
-import Policeman.Core.Version (Version, versionFromText)
+import Policeman.Core.Package (Module, PackageName, PackageStructure (..))
+import Policeman.Core.Version (Version, versionFromText, versionToText)
+import Policeman.Diff (comparePackageStructures)
 import Policeman.Download.Common (DownloadError)
 import Policeman.Download.Hackage (downloadFromHackage)
+import Policeman.Evaluate (eval)
 import Policeman.Hie (createHieFiles)
+
+import qualified Data.Set as Set
 
 
 data PolicemanError
@@ -31,22 +34,33 @@ runPoliceman CliArgs{..} = case cliArgsPrev >>= versionFromText of
 diffWith :: Version -> ExceptT PolicemanError IO ()
 diffWith prevVersion = do
     curPackagePath <- liftIO getCurrentDirectory
-    (curName, curVersion) <- getPackageInfo curPackagePath
+    (packageName, curModules) <- getPackageInfo curPackagePath
 
-    prevPackagePath <- withExceptT DError $ downloadFromHackage curName prevVersion
-    (parsedPrevName, parsedPrevVersion) <- getPackageInfo prevPackagePath
+    prevPackagePath <- withExceptT DError $ downloadFromHackage packageName prevVersion
+    (_, prevModules) <- getPackageInfo prevPackagePath
 
     prevHieFiles <- liftIO $ createHieFiles prevPackagePath
     curHieFiles  <- liftIO $ createHieFiles "."
 
-    putStrLn $ "Currently:  " ++ show (curName, curVersion, length curHieFiles)
-    putStrLn $ "Previously: " ++ show (parsedPrevName, parsedPrevVersion, length prevHieFiles)
+    let prevPackageStructure = PackageStructure
+            { psModules    = Set.fromList prevModules
+            , psExports    = error "Not implemented!"
+            , psModulesMap = mempty  -- TODO: not implemented yet
+            }
 
-getPackageInfo :: FilePath -> ExceptT PolicemanError IO (PackageName, Version)
+    let curPackageStructure = PackageStructure
+            { psModules    = Set.fromList curModules
+            , psExports    = error "Not implemented!"
+            , psModulesMap = mempty  -- TODO: not implemented yet
+            }
+
+    let diff = comparePackageStructures prevPackageStructure curPackageStructure
+    let newVersion = eval prevVersion diff
+    putTextLn $ "New version: " <> versionToText newVersion
+
+getPackageInfo :: FilePath -> ExceptT PolicemanError IO (PackageName, [Module])
 getPackageInfo path = withExceptT CError $ do
     packageDesc <- findCabalDescription path
     let name = extractPackageName packageDesc
-    version <- whenNothing (extractPackageVersion packageDesc) $
-        throwError $ CabalParseError path
-
-    pure (name, version)
+    let modules = extractExposedModules packageDesc
+    pure (name, modules)
