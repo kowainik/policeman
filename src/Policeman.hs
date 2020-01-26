@@ -1,6 +1,6 @@
 module Policeman
-       ( policeman
-       ) where
+    ( policeman
+    ) where
 
 import Options.Applicative (execParser)
 

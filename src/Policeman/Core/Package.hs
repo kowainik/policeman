@@ -17,7 +17,7 @@ module Policeman.Core.Package
 -}
 newtype PackageName = PackageName
     { unPackageName :: Text
-    }
+    } deriving newtype (Show)
 
 {- | Overall structure of the package.
 Generally speaking, this is the resulting data type of custom parsing the
