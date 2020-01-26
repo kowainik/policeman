@@ -12,7 +12,8 @@ import System.Directory (createDirectoryIfMissing, removeDirectoryRecursive)
 import System.FilePath ((</>))
 import System.IO.Error (IOError, isDoesNotExistError)
 
-import Policeman.Core.Package (PackageName (..), Version, versionToText)
+import Policeman.Core.Package (PackageName (..))
+import Policeman.Core.Version (Version, versionToText)
 import Policeman.Download.Common (DownloadError (..), evidenceDir)
 
 

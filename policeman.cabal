@@ -63,6 +63,7 @@ library
                          Policeman.ColorTerminal
                          Policeman.Core.Diff
                          Policeman.Core.Package
+                         Policeman.Core.Version
                          Policeman.Diff
                          Policeman.Evaluate
                          Policeman.Run
@@ -96,10 +97,12 @@ test-suite policeman-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   other-modules:       Test.Policeman.Cabal
+                       Test.Policeman.Version
 
   build-depends:       Cabal ^>= 3.0.0.0
                      , directory ^>= 1.3
                      , filepath ^>= 1.4
+                     , hedgehog ^>= 1.0
                      , hspec ^>= 2.7.1
                      , policeman
 
