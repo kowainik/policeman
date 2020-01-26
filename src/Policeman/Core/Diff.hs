@@ -16,7 +16,7 @@ import qualified Data.Set as Set
 
 data PackageDiff = PackageDiff
     { pdModule :: !(Diff Module)
-    , pdExport :: !(Diff Export)
+    , pdExport :: !(HashMap Module (Diff Export))
     }
 
 data Diff a = Diff
