@@ -13,6 +13,7 @@ import Policeman.Core.Package (PackageName)
 import Policeman.Core.Version (Version, versionFromText)
 import Policeman.Download.Common (DownloadError)
 import Policeman.Download.Hackage (downloadFromHackage)
+import Policeman.Hie (createHieFiles)
 
 
 data PolicemanError
@@ -35,6 +36,8 @@ diffWith prevVersion = do
 
     prevPackagePath <- withExceptT DError $ downloadFromHackage curName prevVersion
     (parsedPrevName, parsedPrevVersion) <- getPackageInfo prevPackagePath
+    liftIO $ createHieFiles prevPackagePath
+    liftIO $ createHieFiles "."
     liftIO $ print (parsedPrevName, parsedPrevVersion)
 
 getPackageInfo :: FilePath -> ExceptT PolicemanError IO (PackageName, Version)

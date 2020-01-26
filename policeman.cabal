@@ -65,12 +65,14 @@ library
                          Policeman.Core.Package
                          Policeman.Core.Version
                          Policeman.Diff
-                         Policeman.Evaluate
-                         Policeman.Run
-
                          -- downloading
                          Policeman.Download.Common
                          Policeman.Download.Hackage
+
+                         Policeman.Evaluate
+                         Policeman.Hie
+                         Policeman.Run
+
   autogen-modules:     Paths_policeman
   other-modules:       Paths_policeman
 
