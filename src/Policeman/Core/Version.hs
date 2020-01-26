@@ -25,10 +25,11 @@ import qualified Data.Text as Text
 {- | Package version that should satisfy the PVP.
 -}
 data Version = Version
-    { versionA :: !Int  -- ^ Marketing major.
-    , versionB :: !Int  -- ^ Major.
-    , versionC :: !Int  -- ^ Minor.
-    , versionD :: !Int  -- ^ Tiny minor.
+    { versionA    :: !Int   -- ^ Marketing major.
+    , versionB    :: !Int   -- ^ Major.
+    , versionC    :: !Int   -- ^ Minor.
+    , versionD    :: !Int   -- ^ Tiny minor.
+    , versionText :: !Text  -- ^ Original text version.
     } deriving stock (Eq, Show)
 
 -- | Initial minimal PVP-satisfactory version: @0.0.0.0@.
@@ -38,6 +39,7 @@ nullVersion = Version
      , versionB = 0
      , versionC = 0
      , versionD = 0
+     , versionText = ""
      }
 
 {- | Shows 'Version' in the standard format:
@@ -59,7 +61,7 @@ versionFromText :: Text -> Maybe Version
 versionFromText (Text.strip -> txt) = maybeInts >>= \ints ->
     if length ints > 4
     then Nothing
-    else versionFromIntList ints
+    else (\ver -> ver{versionText = txt}) <$> versionFromIntList ints
   where
     maybeInts :: Maybe [Int]
     maybeInts = sequence $ map (readMaybe @Int . toString) $ Text.split (== '.') txt
@@ -78,7 +80,10 @@ versionFromIntList [] = Nothing
 versionFromIntList (x:xs) = Just $ mkVer x (toTriple xs)
   where
     mkVer :: Int -> (Int, Int, Int) -> Version
-    mkVer versionA (versionB, versionC, versionD) = Version {..}
+    mkVer versionA (versionB, versionC, versionD) = Version
+        { versionText = ""
+        , ..
+        }
 
     toTriple :: [Int] -> (Int, Int, Int)
     toTriple (a:b:c:_rest) = (a, b, c)

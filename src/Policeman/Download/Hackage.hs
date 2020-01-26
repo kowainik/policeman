@@ -14,7 +14,7 @@ import System.FilePath ((</>))
 import System.IO.Error (IOError, isDoesNotExistError)
 
 import Policeman.Core.Package (PackageName (..))
-import Policeman.Core.Version (Version, versionToText)
+import Policeman.Core.Version (Version (versionText))
 import Policeman.Download.Common (DownloadError (..), evidenceDir)
 
 
@@ -23,7 +23,7 @@ import Policeman.Download.Common (DownloadError (..), evidenceDir)
 the current directory.
 -}
 downloadFromHackage :: PackageName -> Version -> ExceptT DownloadError IO FilePath
-downloadFromHackage packageName@(PackageName name) (versionToText -> version) = do
+downloadFromHackage packageName@(PackageName name) (versionText -> version) = do
     let fullName = name <> "-" <> version
     let tarName = fullName <> ".tar.gz"
     let tarUrl = mconcat
