@@ -1,11 +1,13 @@
 module Policeman.Diff
     ( comparePackageStructures
+    , prettyPrintDiff
     ) where
 
 import Data.Set ((\\))
 
-import Policeman.Core.Diff (Diff (..), PackageDiff (..))
-import Policeman.Core.Package (Export, Module, ModuleStructure (..), PackageStructure (..))
+import Policeman.ColorTerminal (errorMessage, infoMessage, skipMessage, successMessage)
+import Policeman.Core.Diff (Diff (..), PackageDiff (..), emptyDiff, hasDiffAdded, hasDiffDeleted)
+import Policeman.Core.Package (Export, Module (..), ModuleStructure (..), PackageStructure (..))
 
 import qualified Data.HashMap.Strict as HM
 
@@ -38,3 +40,26 @@ comparePackageStructures psPrev psCur = PackageDiff {..}
 
     moduleDiffExport :: ModuleStructure -> ModuleStructure -> Diff Export
     moduleDiffExport msPrev msCur = setAddedRemoved (msExports msPrev) (msExports msCur)
+
+prettyPrintDiff :: PackageDiff -> IO ()
+prettyPrintDiff PackageDiff{..} = do
+    when (hasDiffDeleted pdModule) $ do
+      errorMessage "Deleted modules:"
+      mapM_ (putTextLn . unModule) $ diffDeleted pdModule
+
+    when (hasDiffAdded pdModule) $ do
+      successMessage "New modules:"
+      mapM_ (putTextLn . unModule) $ diffAdded pdModule
+
+    infoMessage "Per module diff:"
+    forM_ (HM.toList pdExport) $ \(moduleName, diff@Diff{..}) -> do
+        when (diff /= emptyDiff) $ do
+            skipMessage $ "  " <> unModule moduleName
+
+            when (hasDiffDeleted diff) $ do
+              errorMessage "    Deleted exports:"
+              mapM_ (putTextLn . ("      " <> ) . show) diffDeleted
+
+            when (hasDiffAdded diff) $ do
+              errorMessage "    Added exports:"
+              mapM_ (putTextLn . ("      " <> ) . show) diffAdded

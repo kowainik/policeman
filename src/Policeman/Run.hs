@@ -11,7 +11,7 @@ import Policeman.Cli (CliArgs (..))
 import Policeman.Core.Hie (hieFilesToHashMap)
 import Policeman.Core.Package (Module, PackageName, PackageStructure (..))
 import Policeman.Core.Version (Version, versionFromText, versionToText)
-import Policeman.Diff (comparePackageStructures)
+import Policeman.Diff (comparePackageStructures, prettyPrintDiff)
 import Policeman.Download.Common (DownloadError)
 import Policeman.Download.Hackage (downloadFromHackage)
 import Policeman.Evaluate (eval)
@@ -54,6 +54,7 @@ diffWith prevVersion = do
             }
 
     let diff = comparePackageStructures prevPackageStructure curPackageStructure
+    liftIO $ prettyPrintDiff diff
     let newVersion = eval prevVersion diff
     putTextLn $ "New version: " <> versionToText newVersion
 
