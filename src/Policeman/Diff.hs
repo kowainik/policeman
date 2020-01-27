@@ -52,7 +52,7 @@ prettyPrintDiff PackageDiff{..} = do
       mapM_ (putTextLn . ("    " <>) . unModule) $ diffAdded pdModule
 
     infoMessage "Per module diff:"
-    forM_ (HM.toList pdExport) $ \(moduleName, diff@Diff{..}) -> do
+    forM_ (HM.toList pdExport) $ \(moduleName, diff@Diff{..}) ->
         when (diff /= emptyDiff) $ do
             skipMessage $ "  * " <> unModule moduleName
 
