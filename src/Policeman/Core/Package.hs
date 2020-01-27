@@ -30,7 +30,7 @@ data PackageStructure = PackageStructure
 
 newtype Module = Module
   { unModule :: Text
-  } deriving newtype (Eq, Ord, Hashable)
+  } deriving newtype (Show, Eq, Ord, Hashable)
 
 data Export
     = ExportedFunction Text

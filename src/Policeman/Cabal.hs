@@ -75,8 +75,9 @@ extractPackageVersion =
 extractExposedModules :: GenericPackageDescription -> [Module]
 extractExposedModules =
     map toModule
-    . concatMap (exposedModules . condTreeData . snd)
-    . condSubLibraries
+    . concatMap (exposedModules . condTreeData)
+    . maybeToList
+    . condLibrary
   where
     toModule :: ModuleName -> Module
     toModule = Module . toText . intercalate "." . components

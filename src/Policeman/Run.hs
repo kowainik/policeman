@@ -56,7 +56,9 @@ diffWith prevVersion = do
     let diff = comparePackageStructures prevPackageStructure curPackageStructure
     liftIO $ prettyPrintDiff diff
     let newVersion = eval prevVersion diff
-    putTextLn $ "New version: " <> versionToText newVersion
+
+    putTextLn ""
+    putTextLn $ "💎 Suggested new version: " <> versionToText newVersion
 
 getPackageInfo :: FilePath -> ExceptT PolicemanError IO (PackageName, [Module])
 getPackageInfo path = withExceptT CError $ do
