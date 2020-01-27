@@ -45,21 +45,21 @@ prettyPrintDiff :: PackageDiff -> IO ()
 prettyPrintDiff PackageDiff{..} = do
     when (hasDiffDeleted pdModule) $ do
       errorMessage "Deleted modules:"
-      mapM_ (putTextLn . unModule) $ diffDeleted pdModule
+      mapM_ (putTextLn . ("    " <>) . unModule) $ diffDeleted pdModule
 
     when (hasDiffAdded pdModule) $ do
       successMessage "New modules:"
-      mapM_ (putTextLn . unModule) $ diffAdded pdModule
+      mapM_ (putTextLn . ("    " <>) . unModule) $ diffAdded pdModule
 
     infoMessage "Per module diff:"
     forM_ (HM.toList pdExport) $ \(moduleName, diff@Diff{..}) -> do
         when (diff /= emptyDiff) $ do
-            skipMessage $ "  " <> unModule moduleName
+            skipMessage $ "  * " <> unModule moduleName
 
             when (hasDiffDeleted diff) $ do
               errorMessage "    Deleted exports:"
-              mapM_ (putTextLn . ("      " <> ) . show) diffDeleted
+              mapM_ (putTextLn . ("        " <> ) . show) diffDeleted
 
             when (hasDiffAdded diff) $ do
               successMessage "    Added exports:"
-              mapM_ (putTextLn . ("      " <> ) . show) diffAdded
+              mapM_ (putTextLn . ("        " <> ) . show) diffAdded
