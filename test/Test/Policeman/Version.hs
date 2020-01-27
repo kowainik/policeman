@@ -21,15 +21,15 @@ versionSpec :: Spec
 versionSpec = describe "Version parsing" $ do
     describe "From Text" $ do
         it "parses 1.2.3.4" $
-            versionFromText "1.2.3.4" `shouldBe` (Just $ Version 1 2 3 4 "1.2.3.4")
+            versionFromText "1.2.3.4" `shouldBe` Just (Version 1 2 3 4 "1.2.3.4")
         it "parses 1.2.3" $
-            versionFromText "1.2.3" `shouldBe` (Just $ Version 1 2 3 0 "1.2.3")
+            versionFromText "1.2.3" `shouldBe` Just (Version 1 2 3 0 "1.2.3")
         it "parses 1.2" $
-            versionFromText "1.2" `shouldBe` (Just $ Version 1 2 0 0 "1.2")
+            versionFromText "1.2" `shouldBe` Just (Version 1 2 0 0 "1.2")
         it "parses 1" $
-            versionFromText "1" `shouldBe` (Just $ Version 1 0 0 0 "1")
+            versionFromText "1" `shouldBe` Just (Version 1 0 0 0 "1")
         it "parses 00" $
-            versionFromText "00" `shouldBe` (Just $ Version 0 0 0 0 "00")
+            versionFromText "00" `shouldBe` Just (Version 0 0 0 0 "00")
         it "does not parse letters" $
             versionFromText "1.2.3.a" `shouldSatisfy` isNothing
         it "does not parse trailing dot" $
@@ -38,15 +38,15 @@ versionSpec = describe "Version parsing" $ do
             versionFromText ".1.2.3" `shouldSatisfy` isNothing
     describe "From List of Ints" $ do
         it "parses [1,2,3,4]" $
-            versionFromIntList [1,2,3,4] `shouldBe` (Just $ Version 1 2 3 4 "")
+            versionFromIntList [1,2,3,4] `shouldBe` Just (Version 1 2 3 4 "")
         it "parses [1,2,3]" $
-            versionFromIntList [1,2,3] `shouldBe` (Just $ Version 1 2 3 0 "")
+            versionFromIntList [1,2,3] `shouldBe` Just (Version 1 2 3 0 "")
         it "parses [1,2]" $
-            versionFromIntList [1,2] `shouldBe` (Just $ Version 1 2 0 0 "")
+            versionFromIntList [1,2] `shouldBe` Just (Version 1 2 0 0 "")
         it "parses [1]" $
-            versionFromIntList [1] `shouldBe` (Just $ Version 1 0 0 0 "")
+            versionFromIntList [1] `shouldBe` Just (Version 1 0 0 0 "")
         it "parses [1,2,3,4,5]" $
-            versionFromIntList [1,2,3,4,5] `shouldBe` (Just $ Version 1 2 3 4 "")
+            versionFromIntList [1,2,3,4,5] `shouldBe` Just (Version 1 2 3 4 "")
 
 -- | Parsing to/from 'Text' works properly.
 versionRoundtripText :: Property
@@ -68,7 +68,10 @@ genVersion = do
     versionB <- genInt
     versionC <- genInt
     versionD <- genInt
-    pure Version { versionText = "", ..}
+    pure Version
+        { versionText = ""
+        , ..
+        }
   where
     genInt :: m Int
     genInt = Gen.int (Range.constant 0 20_000)
