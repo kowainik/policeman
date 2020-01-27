@@ -44,12 +44,12 @@ comparePackageStructures psPrev psCur = PackageDiff {..}
 prettyPrintDiff :: PackageDiff -> IO ()
 prettyPrintDiff PackageDiff{..} = do
     when (hasDiffDeleted pdModule) $ do
-      errorMessage "Deleted modules:"
-      mapM_ (putTextLn . ("    " <>) . unModule) $ diffDeleted pdModule
+        errorMessage "Deleted modules:"
+        printModule $ diffDeleted pdModule
 
     when (hasDiffAdded pdModule) $ do
-      successMessage "New modules:"
-      mapM_ (putTextLn . ("    " <>) . unModule) $ diffAdded pdModule
+        successMessage "New modules:"
+        printModule $ diffAdded pdModule
 
     infoMessage "Per module diff:"
     forM_ (HM.toList pdExport) $ \(moduleName, diff@Diff{..}) ->
@@ -57,9 +57,15 @@ prettyPrintDiff PackageDiff{..} = do
             skipMessage $ "  * " <> unModule moduleName
 
             when (hasDiffDeleted diff) $ do
-              errorMessage "    Deleted exports:"
-              mapM_ (putTextLn . ("        " <> ) . show) diffDeleted
+                errorMessage "    Deleted exports:"
+                printExport diffDeleted
 
             when (hasDiffAdded diff) $ do
-              successMessage "    Added exports:"
-              mapM_ (putTextLn . ("        " <> ) . show) diffAdded
+                successMessage "    Added exports:"
+                printExport diffAdded
+  where
+    printModule :: Set Module -> IO ()
+    printModule = mapM_ (putTextLn . ("    " <>) . unModule)
+
+    printExport :: Set Export -> IO ()
+    printExport = mapM_ (putTextLn . ("        " <> ) . show)
