@@ -10,7 +10,7 @@ import Policeman.Cabal (CabalError (..), extractExposedModules, extractPackageNa
 import Policeman.Cli (CliArgs (..))
 import Policeman.Core.Hie (hieFilesToHashMap)
 import Policeman.Core.Package (Module, PackageName, PackageStructure (..))
-import Policeman.Core.Version (Version, versionFromText, versionToText)
+import Policeman.Core.Version (Version, versionFromText)
 import Policeman.Diff (comparePackageStructures, prettyPrintDiff)
 import Policeman.Download.Common (DownloadError)
 import Policeman.Download.Hackage (downloadFromHackage)
@@ -54,11 +54,8 @@ diffWith prevVersion = do
             }
 
     let diff = comparePackageStructures prevPackageStructure curPackageStructure
-    liftIO $ prettyPrintDiff diff
-    let newVersion = eval prevVersion diff
-
-    putTextLn ""
-    putTextLn $ "💎 Suggested new version: " <> versionToText newVersion
+    let evaluation = eval prevVersion diff
+    liftIO $ prettyPrintDiff prevVersion evaluation diff
 
 getPackageInfo :: FilePath -> ExceptT PolicemanError IO (PackageName, [Module])
 getPackageInfo path = withExceptT CError $ do
