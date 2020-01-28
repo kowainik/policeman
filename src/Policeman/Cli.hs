@@ -12,26 +12,24 @@ module Policeman.Cli
 import Data.Version (showVersion)
 import Development.GitRev (gitCommitDate, gitHash)
 import Options.Applicative (Parser, ParserInfo, fullDesc, help, helper, info, infoOption, long,
-                            long, metavar, progDesc, short, strArgument, strOption)
+                            long, metavar, progDesc, short, strOption)
 
 import Policeman.ColorTerminal (blueCode, boldCode, resetCode)
 
 import qualified Paths_policeman as Meta (version)
 
 
-data CliArgs = CliArgs
-    { cliArgsLink :: !(Maybe Text)  -- ^ Optional link to GIT repo
-    , cliArgsPrev :: !(Maybe Text)  -- ^ Optional previous version to compare with
+newtype CliArgs = CliArgs
+    { cliArgsPrev :: Maybe Text  -- ^ Optional previous version to compare with
     }
 
 -- | Main parser of the @policeman@ command line tool.
 policemanParser :: ParserInfo CliArgs
 policemanParser = info (helper <*> versionP <*> policemanP) $
-    fullDesc <> progDesc "Haskell PVP Helper"
+    fullDesc <> progDesc "Haskell PVP Version Adviser"
 
 policemanP :: Parser CliArgs
 policemanP = do
-    cliArgsLink <- optional $ strArgument (metavar "GIT_LINK")
     cliArgsPrev <- optional hackageVersionP
     pure CliArgs{..}
 
@@ -40,14 +38,14 @@ hackageVersionP = strOption
     $ long "previous"
    <> short 'p'
    <> metavar "VERSION"
-   <> help "Previous version of the package to compare"
+   <> help "Previous version of the package to compare to"
 
 -- | Show the version of the tool.
 versionP :: Parser (a -> a)
 versionP = infoOption policemanVersion
     $ long "version"
    <> short 'v'
-   <> help "Show policeman's version"
+   <> help "Show Policeman's badge number"
 
 policemanVersion :: String
 policemanVersion = toString $ intercalate "\n"
