@@ -5,9 +5,11 @@ module Policeman.Diff
 
 import Data.Set ((\\))
 
-import Policeman.ColorTerminal (errorMessage, infoMessage, skipMessage, successMessage)
+import Policeman.ColorTerminal (boldText, errorMessage, infoMessage, skipMessage, successMessage)
 import Policeman.Core.Diff (Diff (..), PackageDiff (..), emptyDiff, hasDiffAdded, hasDiffDeleted)
 import Policeman.Core.Package (Export, Module (..), ModuleStructure (..), PackageStructure (..))
+import Policeman.Core.Version (Version, versionToText)
+import Policeman.Evaluate (Evaluation (..))
 
 import qualified Data.HashMap.Strict as HM
 
@@ -41,8 +43,12 @@ comparePackageStructures psPrev psCur = PackageDiff {..}
     moduleDiffExport :: ModuleStructure -> ModuleStructure -> Diff Export
     moduleDiffExport msPrev msCur = setAddedRemoved (msExports msPrev) (msExports msCur)
 
-prettyPrintDiff :: PackageDiff -> IO ()
-prettyPrintDiff PackageDiff{..} = do
+{- | This function takes previous version of package, diff evaluation
+result, the diff itself, and prints new suggested version based on
+diff and evaluation.
+-}
+prettyPrintDiff :: Version -> Evaluation -> PackageDiff -> IO ()
+prettyPrintDiff prevVersion Evaluation{..} PackageDiff{..} = do
     when (hasDiffDeleted pdModule) $ do
         errorMessage "Deleted modules:"
         printModule $ diffDeleted pdModule
@@ -63,6 +69,11 @@ prettyPrintDiff PackageDiff{..} = do
             when (hasDiffAdded diff) $ do
                 successMessage "    Added exports:"
                 printExport diffAdded
+
+    putTextLn ""
+    putText     "🔄 Type of change:        " *> boldText (show evaluationChange <> "\n")
+    putTextLn $ "👵 Previous version:      " <> versionToText prevVersion
+    putTextLn $ "💎 Suggested new version: " <> versionToText evaluationVersion
   where
     printModule :: Set Module -> IO ()
     printModule = mapM_ (putTextLn . ("    " <>) . unModule)
