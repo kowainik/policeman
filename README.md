@@ -1,5 +1,7 @@
 # Policeman
 
+![logo](https://user-images.githubusercontent.com/4276606/73312656-262c1a80-4221-11ea-83c3-87b3973fa27f.png)
+
 [![GitHub CI](https://github.com/kowainik/policeman/workflows/CI/badge.svg)](https://github.com/kowainik/policeman/actions)
 [![Hackage](https://img.shields.io/hackage/v/policeman.svg?logo=haskell)](https://hackage.haskell.org/package/policeman)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
@@ -91,3 +93,7 @@ against. For that purpose, you can use `-p | --previous` option. For example:
 ```shell
 policeman --previous "0.1.0.0"
 ```
+
+## Acknowledgement
+
+Icons made by [Freepik](http://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/).
