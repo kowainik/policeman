@@ -19,7 +19,7 @@ data ChangeType
     = NoChange
     | Minor
     | Major
-    deriving (Show)
+    deriving stock (Show)
 
 {- | Result of package evaluation: new version with the change type.
 -}

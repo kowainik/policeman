@@ -77,11 +77,11 @@ versionToIntList Version{..} =
 -- TODO: check on negative numbers
 versionFromIntList :: [Int] -> Maybe Version
 versionFromIntList [] = Nothing
-versionFromIntList (x:xs) = Just $ mkVer x (toTriple xs)
+versionFromIntList l@(x:xs) = Just $ mkVer x (toTriple xs)
   where
     mkVer :: Int -> (Int, Int, Int) -> Version
     mkVer versionA (versionB, versionC, versionD) = Version
-        { versionText = ""
+        { versionText = Text.intercalate "." $ map show l
         , ..
         }
 
