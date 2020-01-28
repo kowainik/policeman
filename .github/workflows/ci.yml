@@ -27,10 +27,6 @@ jobs:
         ghc-version: ${{ matrix.ghc }}
         cabal-version: ${{ matrix.cabal }}
 
-    # We cache the elements of the Cabal store separately,
-    # as the entirety of ~/.cabal can grow very large
-    # for projects with many dependencies.
-
     - uses: actions/cache@v1
       name: Cache ~/.cabal/packages
       with:
@@ -49,10 +45,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cabal new-update
-        cabal new-configure --enable-tests --enable-benchmarks --write-ghc-environment-files=always -j2
-        cabal new-build --only-dependencies
+        cabal v2-update
+        cabal v2-configure --enable-benchmarks --enable-tests --write-ghc-environment-files=always -j2
+        cabal v2-build --only-dependencies
+
     - name: Build & test
       run: |
         cabal v2-build
-        cabal new-test --enable-tests
+        cabal v2-test --enable-tests
