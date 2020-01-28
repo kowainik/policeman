@@ -6,14 +6,14 @@ import Control.Monad.Trans.Except (withExceptT)
 import System.Directory (getCurrentDirectory)
 
 import Policeman.Cabal (CabalError (..), extractExposedModules, extractPackageName,
-                        findCabalDescription)
+                        extractPackageVersion, findCabalDescription, parseCabalFile)
 import Policeman.Cli (CliArgs (..))
 import Policeman.Core.Hie (hieFilesToHashMap)
-import Policeman.Core.Package (Module, PackageName, PackageStructure (..))
+import Policeman.Core.Package (Module, PackageName (..), PackageStructure (..))
 import Policeman.Core.Version (Version, versionFromText)
 import Policeman.Diff (comparePackageStructures, prettyPrintDiff)
 import Policeman.Download.Common (DownloadError)
-import Policeman.Download.Hackage (downloadFromHackage)
+import Policeman.Download.Hackage (downloadFromHackage, getLatestHackageCabalFileContent)
 import Policeman.Evaluate (eval)
 import Policeman.Hie (createHieFiles)
 
@@ -27,16 +27,39 @@ data PolicemanError
 
 -- | Runs the tool based on the CLI input.
 runPoliceman :: CliArgs -> IO ()
-runPoliceman CliArgs{..} = case cliArgsPrev >>= versionFromText of
-    -- TODO: check for invalid version separately
-    Nothing   -> putTextLn "Auto detection of previous Hackage version is not supported yet"
-    Just prev -> whenLeftM_ (runExceptT $ diffWith prev) print
-
-diffWith :: Version -> ExceptT PolicemanError IO ()
-diffWith prevVersion = do
+runPoliceman CliArgs{..} = do
     curPackagePath <- liftIO getCurrentDirectory
-    (packageName, curModules) <- getPackageInfo curPackagePath
+    runExceptT (getPackageInfo curPackagePath) >>= \case
+        Left err -> print err
+        Right (packageName, curModules) -> do
+            let runDiff :: Version -> IO ()
+                runDiff prevVer = whenLeftM_
+                    (runExceptT $ diffWith prevVer packageName curModules)
+                    print
 
+            case cliArgsPrev >>= versionFromText of
+                -- TODO: check for invalid version separately
+                Nothing   -> getLatestHackageVersion packageName >>=
+                    either print runDiff
+                Just prev -> runDiff prev
+
+getLatestHackageVersion :: PackageName -> IO (Either PolicemanError Version)
+getLatestHackageVersion packageName = do
+    eitherGenPackDesc <- runExceptT $
+        withExceptT DError (getLatestHackageCabalFileContent packageName)
+        >>=  withExceptT CError . parseCabalFile
+    pure $ case eitherGenPackDesc of
+        Left err -> Left err
+        Right genPackDesc -> case extractPackageVersion genPackDesc of
+            Just ver -> Right ver
+            Nothing  -> Left $ CError CabalParseError
+
+diffWith
+    :: Version
+    -> PackageName
+    -> [Module]
+    -> ExceptT PolicemanError IO ()
+diffWith prevVersion packageName curModules = do
     prevPackagePath <- withExceptT DError $ downloadFromHackage packageName prevVersion
     (_, prevModules) <- getPackageInfo prevPackagePath
 

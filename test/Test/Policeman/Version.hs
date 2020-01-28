@@ -12,6 +12,7 @@ import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
 import Policeman.Core.Version (Version (..), versionFromIntList, versionFromText, versionToIntList,
                                versionToText)
 
+import qualified Data.Text as Text
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
@@ -38,15 +39,15 @@ versionSpec = describe "Version parsing" $ do
             versionFromText ".1.2.3" `shouldSatisfy` isNothing
     describe "From List of Ints" $ do
         it "parses [1,2,3,4]" $
-            versionFromIntList [1,2,3,4] `shouldBe` Just (Version 1 2 3 4 "")
+            versionFromIntList [1,2,3,4] `shouldBe` Just (Version 1 2 3 4 "1.2.3.4")
         it "parses [1,2,3]" $
-            versionFromIntList [1,2,3] `shouldBe` Just (Version 1 2 3 0 "")
+            versionFromIntList [1,2,3] `shouldBe` Just (Version 1 2 3 0 "1.2.3")
         it "parses [1,2]" $
-            versionFromIntList [1,2] `shouldBe` Just (Version 1 2 0 0 "")
+            versionFromIntList [1,2] `shouldBe` Just (Version 1 2 0 0 "1.2")
         it "parses [1]" $
-            versionFromIntList [1] `shouldBe` Just (Version 1 0 0 0 "")
+            versionFromIntList [1] `shouldBe` Just (Version 1 0 0 0 "1")
         it "parses [1,2,3,4,5]" $
-            versionFromIntList [1,2,3,4,5] `shouldBe` Just (Version 1 2 3 4 "")
+            versionFromIntList [1,2,3,4,5] `shouldBe` Just (Version 1 2 3 4 "1.2.3.4.5")
 
 -- | Parsing to/from 'Text' works properly.
 versionRoundtripText :: Property
@@ -69,7 +70,12 @@ genVersion = do
     versionC <- genInt
     versionD <- genInt
     pure Version
-        { versionText = ""
+        { versionText = Text.intercalate "." $ map show
+            [ versionA
+            , versionB
+            , versionC
+            , versionD
+            ]
         , ..
         }
   where

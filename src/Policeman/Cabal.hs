@@ -3,6 +3,7 @@
 
 module Policeman.Cabal
     ( CabalError (..)
+    , parseCabalFile
     , findCabalDescription
     , extractExposedModules
     , extractPackageName
@@ -35,7 +36,7 @@ data CabalError
     -- | Multiple cabal files found.
     | MultipleCabalFiles (NonEmpty FilePath)
     -- | Error parsing cabal file.
-    | CabalParseError FilePath
+    | CabalParseError
     deriving stock (Show, Eq)
 
 {- | This function takes a path to a directory, finds a cabal file
@@ -51,9 +52,13 @@ findCabalDescription dirPath = do
         [cabalFile] -> do
             let cabalPath = dirPath </> cabalFile
             cabalContent <- readFileBS cabalPath
-            whenNothing (parseGenericPackageDescriptionMaybe cabalContent) $
-                throwError $ CabalParseError cabalPath  -- TODO: better error
+            parseCabalFile cabalContent
         x:xs -> throwError $ MultipleCabalFiles (x :| xs)
+
+-- | Parses the given cabal file source and returns 'GenericPackageDescription'
+parseCabalFile :: ByteString -> ExceptT CabalError IO GenericPackageDescription
+parseCabalFile cabalContent = whenNothing (parseGenericPackageDescriptionMaybe cabalContent) $
+    throwError CabalParseError  -- TODO: better error
 
 extractPackageName :: GenericPackageDescription -> PackageName
 extractPackageName =
