@@ -34,7 +34,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cabal v2-update 
+        cabal v2-update
         cabal v2-build --enable-tests
     - name: Test
       run: |
