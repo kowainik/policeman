@@ -2,6 +2,7 @@ module Policeman.Run
     ( runPoliceman
     ) where
 
+import Control.Monad.Except (throwError)
 import Control.Monad.Trans.Except (withExceptT)
 import System.Directory (getCurrentDirectory)
 
@@ -27,32 +28,27 @@ data PolicemanError
 
 -- | Runs the tool based on the CLI input.
 runPoliceman :: CliArgs -> IO ()
-runPoliceman CliArgs{..} = do
-    curPackagePath <- liftIO getCurrentDirectory
-    runExceptT (getPackageInfo curPackagePath) >>= \case
-        Left err -> print err
-        Right (packageName, curModules) -> do
-            let runDiff :: Version -> IO ()
-                runDiff prevVer = whenLeftM_
-                    (runExceptT $ diffWith prevVer packageName curModules)
-                    print
+runPoliceman CliArgs{..} = whenLeftM_ (runExceptT findNextVersion) print
+  where
+    findNextVersion :: ExceptT PolicemanError IO ()
+    findNextVersion = do
+        curPackagePath <- liftIO getCurrentDirectory
+        (packageName, curModules) <- getPackageInfo curPackagePath
 
-            case cliArgsPrev >>= versionFromText of
-                -- TODO: check for invalid version separately
-                Nothing   -> getLatestHackageVersion packageName >>=
-                    either print runDiff
-                Just prev -> runDiff prev
+        let runDiff :: Version -> ExceptT PolicemanError IO ()
+            runDiff prevVer = diffWith prevVer packageName curModules
 
-getLatestHackageVersion :: PackageName -> IO (Either PolicemanError Version)
+        -- TODO: check for invalid version separately
+        case cliArgsPrev >>= versionFromText of
+            Nothing   -> getLatestHackageVersion packageName >>= runDiff
+            Just prev -> runDiff prev
+
+getLatestHackageVersion :: PackageName -> ExceptT PolicemanError IO Version
 getLatestHackageVersion packageName = do
-    eitherGenPackDesc <- runExceptT $
-        withExceptT DError (getLatestHackageCabalFileContent packageName)
-        >>=  withExceptT CError . parseCabalFile
-    pure $ case eitherGenPackDesc of
-        Left err -> Left err
-        Right genPackDesc -> case extractPackageVersion genPackDesc of
-            Just ver -> Right ver
-            Nothing  -> Left $ CError CabalParseError
+    cabalContent <- withExceptT DError $ getLatestHackageCabalFileContent packageName
+    packageDesc  <- withExceptT CError $ parseCabalFile cabalContent
+    whenNothing (extractPackageVersion packageDesc) $
+        throwError $ CError CabalParseError
 
 diffWith
     :: Version
