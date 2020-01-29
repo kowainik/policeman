@@ -32,7 +32,7 @@ jobs:
         path: ~/.cabal/store
         key: ${{ runner.os }}-${{ matrix.ghc }}-cabal
 
-    - name: Install dependencies
+    - name: Build
       run: |
         cabal v2-update
         cabal v2-build --enable-tests
