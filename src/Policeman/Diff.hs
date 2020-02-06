@@ -8,7 +8,7 @@ import Data.Set ((\\))
 import Policeman.ColorTerminal (boldText, errorMessage, infoMessage, skipMessage, successMessage)
 import Policeman.Core.Diff (Diff (..), PackageDiff (..), emptyDiff, hasDiffAdded, hasDiffDeleted)
 import Policeman.Core.Package (Export, Module (..), ModuleStructure (..), PackageStructure (..))
-import Policeman.Core.Version (Version, versionToText)
+import Policeman.Core.Version (Version, versionText, versionToText)
 import Policeman.Evaluate (Evaluation (..))
 
 import qualified Data.HashMap.Strict as HM
@@ -72,7 +72,7 @@ prettyPrintDiff prevVersion Evaluation{..} PackageDiff{..} = do
 
     putTextLn ""
     putText     "🔄 Type of change:        " *> boldText (show evaluationChange <> "\n")
-    putTextLn $ "👵 Previous version:      " <> versionToText prevVersion
+    putTextLn $ "👵 Previous version:      " <> versionText prevVersion
     putTextLn $ "💎 Suggested new version: " <> versionToText evaluationVersion
   where
     printModule :: Set Module -> IO ()
