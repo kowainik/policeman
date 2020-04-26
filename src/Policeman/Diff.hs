@@ -3,7 +3,7 @@ module Policeman.Diff
     , prettyPrintDiff
     ) where
 
-import Data.Set ((\\))
+import Data.Set (member, (\\))
 
 import Policeman.ColorTerminal (boldText, errorMessage, infoMessage, skipMessage, successMessage)
 import Policeman.Core.Diff (Diff (..), PackageDiff (..), emptyDiff, hasDiffAdded, hasDiffDeleted)
@@ -30,7 +30,7 @@ comparePackageStructures psPrev psCur = PackageDiff {..}
     pdModule = setAddedRemoved (psModules psPrev) (psModules psCur)
 
     pdExport :: HashMap Module (Diff Export)
-    pdExport = foldl' go HM.empty oldModules
+    pdExport = foldl' go HM.empty oldExposedModules
       where
         go :: HashMap Module (Diff Export) -> (Module, ModuleStructure) -> HashMap Module (Diff Export)
         go hm (modul, msPrev) = case HM.lookup modul (psModulesMap psCur) of
@@ -38,7 +38,13 @@ comparePackageStructures psPrev psCur = PackageDiff {..}
             Nothing    -> hm
 
         oldModules :: [(Module, ModuleStructure)]
-        oldModules = HM.toList $ psModulesMap psPrev
+        oldModules = HM.toList (psModulesMap psPrev)
+
+        wasExposed :: Module -> Bool
+        wasExposed x = x `member` psModules psCur
+
+        oldExposedModules :: [(Module, ModuleStructure)]
+        oldExposedModules = filter (wasExposed . fst) oldModules
 
     moduleDiffExport :: ModuleStructure -> ModuleStructure -> Diff Export
     moduleDiffExport msPrev msCur = setAddedRemoved (msExports msPrev) (msExports msCur)
