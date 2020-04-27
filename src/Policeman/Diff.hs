@@ -41,7 +41,7 @@ comparePackageStructures psPrev psCur = PackageDiff {..}
         oldModules = HM.toList (psModulesMap psPrev)
 
         wasExposed :: Module -> Bool
-        wasExposed x = x `member` psModules psCur
+        wasExposed x = x `member` psModules psPrev
 
         oldExposedModules :: [(Module, ModuleStructure)]
         oldExposedModules = filter (wasExposed . fst) oldModules
