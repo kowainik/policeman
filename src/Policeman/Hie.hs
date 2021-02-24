@@ -21,6 +21,11 @@ createHieFiles :: FilePath -> IO [HieFile]
 createHieFiles projectDir = do
     curDir <- getCurrentDirectory
     setCurrentDirectory projectDir
+
+    -- make sure cabal isn't confused by any other "cabal.project"
+    -- file in a parent directory
+    writeFile "cabal.project" "packages: ."
+
     "cabal" ["clean"]
     "cabal"
         [ "v2-build"
