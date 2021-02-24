@@ -24,6 +24,7 @@ createHieFiles projectDir = do
 
     -- make sure cabal isn't confused by any other "cabal.project"
     -- file in a parent directory
+    -- See discussion: https://github.com/kowainik/policeman/issues/52
     writeFile "cabal.project" "packages: ."
 
     "cabal" ["clean"]
